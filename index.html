@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DECIMAG Console</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #f4f6f8;
+  color: #111;
+}
+
+.header {
+  background: #000;
+  color: #fff;
+  padding: 14px 18px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.subheader {
+  background: #111;
+  color: #d0d7de;
+  padding: 8px 18px;
+  font-size: 13px;
+}
+
+.container {
+  display: flex;
+  min-height: calc(100vh - 96px);
+}
+
+.panel {
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.left {
+  width: 25%;
+  background: #f7f7f7;
+  border-right: 1px solid #ddd;
+}
+
+.middle {
+  width: 50%;
+  background: #e9edf1;
+  border-right: 1px solid #ddd;
+}
+
+.right {
+  width: 25%;
+  background: #fafafa;
+}
+
+.panel h3 {
+  margin-top: 0;
+  margin-bottom: 18px;
+  font-size: 18px;
+}
+
+textarea {
+  width: 100%;
+  height: 155px;
+  padding: 12px;
+  box-sizing: border-box;
+  resize: none;
+  border: 1px solid #bbb;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+}
+
+button {
+  margin-top: 14px;
+  padding: 12px;
+  width: 100%;
+  border: 1px solid #999;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+button:hover {
+  background: #f0f0f0;
+}
+
+.card {
+  background: white;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #d9dee3;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: bold;
+  color: #5f6b76;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.value {
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.result {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.audit {
+  background: #111;
+  color: #d8dee4;
+  padding: 10px 16px;
+  font-size: 12px;
+  border-top: 1px solid #222;
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+  background: #e7ecf2;
+  color: #223;
+}
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.passed { background: #e6f7ea; color: #1f7a3f; }
+.conditional { background: #fff4e5; color: #a15c00; }
+.failed { background: #fdecea; color: #b00020; }
+
+.outcome-box {
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.outcome-allow { background: #e6f7ea; color: green; }
+.outcome-escalate { background: #fff0f0; color: orangered; }
+.outcome-deny { background: #fdecea; color: red; }
+.outcome-reopened { background: #e8f2ff; color: dodgerblue; }
+.outcome-defer { background: #fff4e5; color: darkorange; }
+</style>
+</head>
+
+<body>
+
+<div class="header">DECIMAG — Decision Authorization Console</div>
+<div class="subheader">Every action must earn the right to be executed.</div>
+
+<div class="container">
+
+  <div class="panel left">
+    <h3>Action Request</h3>
+    <textarea id="input" placeholder="Enter a requested action..."></textarea>
+    <button onclick="run()">Evaluate</button>
+    <button onclick="setScenario('payment')">Send Payment</button>
+    <button onclick="setScenario('access')">Grant Access</button>
+    <button onclick="setScenario('disable')">Disable User</button>
+  </div>
+
+  <div class="panel middle">
+    <h3>Decision Trace</h3>
+
+    <div class="card">
+      <div class="label">Structured Interpretation</div>
+      <div class="value" id="interpretation">Waiting for evaluation...</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Validation Status</div>
+      <div class="value" id="validation">Not evaluated yet</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Decision Class</div>
+      <div class="value" id="decision">UNKNOWN</div>
+    </div>
+  </div>
+
+  <div class="panel right">
+    <h3>Outcome</h3>
+
+    <div class="card">
+      <div class="label">Authorization Outcome</div>
+      <div class="result" id="outcome">Waiting...</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Reason</div>
+      <div class="value" id="reason">No reason yet</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Next Step</div>
+      <div class="value" id="next">No next step yet</div>
+    </div>
+
+    <div class="card">
+      <div class="label">Episode</div>
+      <div class="value" id="episode">Not available</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="audit" id="audit">
+Audit: Request ID: pending | Episode: pending | Time: pending | Protocol: MVP-0.1
+</div>
+
+<script>
+function setScenario(type) {
+  let input = document.getElementById("input");
+
+  if (type === "payment") {
+    input.value = "Send payment of $50,000 to external vendor account";
+  }
+
+  if (type === "access") {
+    input.value = "Grant temporary access to Q3 financial reports";
+  }
+
+  if (type === "disable") {
+    input.value = "Disable user account after suspicious activity alert";
+  }
+}
+async function run() {
+
+  let response = await fetch("report.json");
+  let data = await response.json();
+
+  let inputText = document.getElementById("input").value.toLowerCase();
+let examples = data.best_examples;
+let example = examples[0];
+
+if (inputText.includes("payment")) {
+  example = examples.find(e =>
+    e.content_preview && e.content_preview.includes("O_ESC")
+  ) || examples[0];
+}
+else if (inputText.includes("access")) {
+  example = examples.find(e =>
+    e.content_preview && e.content_preview.includes("Re-entry acknowledged")
+  ) || examples[0];
+}
+else if (inputText.includes("disable")) {
+  example = examples.find(e =>
+    e.content_preview && e.content_preview.includes("allowed=0")
+  ) || examples[0];
+}
+else {
+  let randomIndex = Math.floor(Math.random() * examples.length);
+  example = examples[randomIndex];
+}
+  let text = example.content_preview || "No preview available";
+  let episodeId = example.episode_id || "Unknown episode";
+  let createdAt = example.created_at || "Unknown time";
+  let requestId = "REQ-" + Date.now();
+
+  document.getElementById("interpretation").innerText =
+    "Preview: " + text + "\n\nEpisode: " + episodeId + "\nTime: " + createdAt;
+
+  let decision = "UNKNOWN";
+  let outcome = "UNKNOWN";
+  let nextStep = "Review decision or provide more context";
+  let validationText = "PASSED: Parsed from real system output";
+
+  if (text.includes("Re-entry acknowledged")) {
+    decision = "RE-EVALUATION";
+    outcome = "REOPENED";
+    nextStep = "Re-check the decision with updated context";
+    validationText = "CONDITIONAL: Re-entry detected";
+  }
+  else if (text.includes("NA1")) {
+    decision = "INSUFFICIENT_CONTEXT";
+    outcome = "REQUEST_INFO";
+    nextStep = "Provide missing information";
+    validationText = "CONDITIONAL: Missing context";
+  }
+  else if (text.includes("NA2")) {
+    decision = "DEFER";
+    outcome = "DEFER";
+    nextStep = "Hold action and wait for re-evaluation";
+    validationText = "CONDITIONAL: Action deferred";
+  }
+  else if (text.includes("NA3") || text.includes("O_ESC")) {
+    decision = "ESCALATE";
+    outcome = "ESCALATE";
+    nextStep = "Escalate to human review";
+    validationText = "PASSED: Escalation path identified";
+  }
+  else if (text.includes("allowed=0")) {
+    decision = "DENY";
+    outcome = "DENY";
+    nextStep = "Action blocked";
+    validationText = "PASSED: Constraint triggered";
+  }
+  else if (text.includes("allowed=1")) {
+    decision = "CLEAR_TO_PROCEED";
+    outcome = "ALLOW";
+    nextStep = "Proceed with execution";
+    validationText = "PASSED: Action may proceed";
+  }
+
+  let validationEl = document.getElementById("validation");
+
+let badgeClass = "passed";
+if (validationText.includes("CONDITIONAL")) badgeClass = "conditional";
+if (validationText.includes("FAILED")) badgeClass = "failed";
+
+validationEl.innerHTML =
+  '<span class="status-badge ' + badgeClass + '">' +
+  validationText +
+  '</span>';
+  document.getElementById("decision").innerText = decision;
+
+let outcomeEl = document.getElementById("outcome");
+
+let outcomeClass = "outcome-allow";
+
+if (outcome === "ESCALATE") outcomeClass = "outcome-escalate";
+if (outcome === "DENY") outcomeClass = "outcome-deny";
+if (outcome === "REOPENED") outcomeClass = "outcome-reopened";
+if (outcome === "DEFER") outcomeClass = "outcome-defer";
+if (outcome === "REQUEST_INFO") outcomeClass = "outcome-defer";
+
+outcomeEl.innerHTML =
+  '<div class="outcome-box ' + outcomeClass + '">' +
+  outcome +
+  '</div>';
+
+  document.getElementById("reason").innerText = text;
+  document.getElementById("next").innerText = nextStep;
+  document.getElementById("episode").innerText = episodeId;
+
+  document.getElementById("audit").innerText =
+    "Audit: Request ID: " + requestId +
+    " | Episode: " + episodeId +
+    " | Time: " + createdAt +
+    " | Protocol: MVP-0.1";
+}
+</script>
+
+</body>
+</html>
