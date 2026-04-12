@@ -77,7 +77,7 @@
 
     h1 {
       margin: 0;
-      font-size: 58px;
+      font-size: 56px;
       line-height: 0.98;
       letter-spacing: -1.8px;
       max-width: 760px;
@@ -87,7 +87,7 @@
       max-width: 760px;
       margin: 18px 0 0 0;
       color: #d0d5dd;
-      font-size: 20px;
+      font-size: 19px;
       line-height: 1.6;
     }
 
@@ -147,7 +147,7 @@
     }
 
     .metric-value {
-      font-size: 23px;
+      font-size: 22px;
       line-height: 1.25;
       font-weight: 700;
     }
@@ -279,10 +279,29 @@
 
     .request-text {
       margin: 0;
-      font-size: 26px;
-      line-height: 1.12;
+      font-size: 22px;
+      line-height: 1.18;
       font-weight: 700;
-      letter-spacing: -0.6px;
+      letter-spacing: -0.5px;
+      max-width: 95%;
+    }
+
+    .simulate-btn {
+      margin-top: 14px;
+      padding: 9px 13px;
+      border-radius: 10px;
+      border: 1px solid #d0d5dd;
+      background: #fff;
+      color: #111827;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      transition: 0.18s ease;
+    }
+
+    .simulate-btn:hover {
+      background: #f8fafc;
+      transform: translateY(-1px);
     }
 
     .trace-grid {
@@ -303,13 +322,13 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1.2px;
-      color: #475467;
+      color: #344054;
       margin-bottom: 8px;
     }
 
     .value {
-      font-size: 16px;
-      line-height: 1.65;
+      font-size: 15px;
+      line-height: 1.7;
       color: #101828;
     }
 
@@ -403,7 +422,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 1.1px;
-      color: #475467;
+      color: #344054;
       margin-bottom: 7px;
     }
 
@@ -505,7 +524,7 @@
         grid-template-columns: 1fr;
       }
       .section-title { font-size: 28px; }
-      .request-text { font-size: 22px; }
+      .request-text { font-size: 20px; }
       .closing-text { font-size: 24px; }
     }
   </style>
@@ -533,7 +552,7 @@
         </div>
         <div class="metric">
           <div class="metric-label">What it returns</div>
-          <div class="metric-value">Allow. Defer. Escalate. Reopen.</div>
+          <div class="metric-value">Allowed. Deferred. Escalated. Reopened.</div>
         </div>
         <div class="metric">
           <div class="metric-label">What it checks</div>
@@ -603,6 +622,7 @@
             <div class="request-box">
               <div class="label">Request</div>
               <p class="request-text" id="requestText">Send payment of $50,000 to an external vendor account</p>
+              <button class="simulate-btn" onclick="simulateExecution()">Simulate execution</button>
             </div>
 
             <div class="trace-grid">
@@ -674,8 +694,8 @@
           </div>
 
           <div class="why-card">
-            <h3 class="why-title">Not static rules</h3>
-            <p class="why-text">DECIMAG evaluates context, justification, re-entry, and impact together at the point of execution.</p>
+            <h3 class="why-title">Rules break here</h3>
+            <p class="why-text">Rules don’t fail because they’re wrong. They fail because they don’t see the situation.</p>
           </div>
         </div>
       </section>
@@ -757,17 +777,19 @@
         outcome: "DEFER",
         outcomeClass: "defer",
         outcomeBig: "Defer",
-        outcomeSub: "Action is paused until the request is re-verified through a trusted path.",
+        outcomeSub: "Execution is blocked until identity is re-verified through a trusted path.",
         signalClass: "defer",
         signalText: "Untrusted execution path detected",
         why: "The request involves sensitive account changes triggered through a phishing-like flow or untrusted link.",
         next: "Stop execution. Require direct re-verification through a known entry point or trusted channel.",
-        logic: "The action may be legitimate, but the path that triggered it is not trusted. Execution authority is withheld until identity and intent are re-confirmed outside the suspicious flow.",
+        logic: "The action may be legitimate, but the path that triggered it is not trusted. Execution authority is withheld until identity and intent are re-confirmed outside the suspicious flow. This is where most systems fail - they validate the request, not the path.",
         status: "Waiting for trusted re-verification",
         decisionClass: "Conditional non-action",
         protocol: "A valid-looking request is not enough when the execution path may be compromised."
       }
     };
+
+    let currentScenarioKey = 'payment';
 
     function signalHTML(cls, text) {
       return `<div class="signal ${cls}"><span class="dot"></span>${text}</div>`;
@@ -781,6 +803,7 @@
       const s = scenarios[key];
       if (!s) return;
 
+      currentScenarioKey = key;
       clearActive();
       document.getElementById(`btn-${key}`).classList.add('active');
 
@@ -800,6 +823,23 @@
       document.getElementById('protocolText').innerText = s.protocol;
 
       document.getElementById('signalWrap').innerHTML = signalHTML(s.signalClass, s.signalText);
+    }
+
+    function simulateExecution() {
+      const s = scenarios[currentScenarioKey];
+      const box = document.querySelector('.outcome-box');
+      box.style.transform = 'scale(0.985)';
+      box.style.transition = '0.16s ease';
+      setTimeout(() => {
+        box.style.transform = 'scale(1)';
+      }, 160);
+
+      const status = document.getElementById('statusText');
+      const original = s.status;
+      status.innerText = 'Decision checked by DECIMAG';
+      setTimeout(() => {
+        status.innerText = original;
+      }, 900);
     }
 
     loadScenario('payment');
