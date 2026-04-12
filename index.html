@@ -84,7 +84,7 @@
     }
 
     .sub {
-      max-width: 720px;
+      max-width: 760px;
       margin: 18px 0 0 0;
       color: #d0d5dd;
       font-size: 20px;
@@ -552,7 +552,7 @@
       <div class="section-head">
         <div>
           <div class="section-kicker">Interactive product preview</div>
-          <h2 class="section-title">Run four decision paths.</h2>
+          <h2 class="section-title">Run five decision paths.</h2>
         </div>
         <p class="section-copy">
           Select a scenario. The authorization result updates like a real decision console, not a static explainer.
@@ -586,6 +586,12 @@
                 <div class="scenario-type">Operational action</div>
                 <div class="scenario-title">Create new vendor profile</div>
                 <div class="scenario-meta">Missing evidence, no hard block yet</div>
+              </button>
+
+              <button class="scenario-btn" onclick="loadScenario('phishing')" id="btn-phishing">
+                <div class="scenario-type">Phishing-triggered action</div>
+                <div class="scenario-title">Approve account update</div>
+                <div class="scenario-meta">Sensitive change initiated through an untrusted link</div>
               </button>
             </div>
           </div>
@@ -745,6 +751,21 @@
         status: "Waiting for required information",
         decisionClass: "Conditional non-action",
         protocol: "Execution is delayed until the minimum evidence threshold is met."
+      },
+      phishing: {
+        request: "Approve a password reset and billing detail update after the user clicked a link from a message claiming to be from support",
+        outcome: "DEFER",
+        outcomeClass: "defer",
+        outcomeBig: "Defer",
+        outcomeSub: "Action is paused until the request is re-verified through a trusted path.",
+        signalClass: "defer",
+        signalText: "Untrusted execution path detected",
+        why: "The request involves sensitive account changes triggered through a phishing-like flow or untrusted link.",
+        next: "Stop execution. Require direct re-verification through a known entry point or trusted channel.",
+        logic: "The action may be legitimate, but the path that triggered it is not trusted. Execution authority is withheld until identity and intent are re-confirmed outside the suspicious flow.",
+        status: "Waiting for trusted re-verification",
+        decisionClass: "Conditional non-action",
+        protocol: "A valid-looking request is not enough when the execution path may be compromised."
       }
     };
 
