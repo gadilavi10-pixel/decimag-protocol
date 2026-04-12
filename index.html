@@ -279,11 +279,11 @@
 
     .request-text {
       margin: 0;
-      font-size: 22px;
-      line-height: 1.18;
+      font-size: 20px;
+      line-height: 1.25;
       font-weight: 700;
-      letter-spacing: -0.5px;
-      max-width: 95%;
+      letter-spacing: -0.45px;
+      max-width: 85%;
     }
 
     .simulate-btn {
@@ -524,7 +524,7 @@
         grid-template-columns: 1fr;
       }
       .section-title { font-size: 28px; }
-      .request-text { font-size: 20px; }
+      .request-text { font-size: 18px; max-width: 100%; }
       .closing-text { font-size: 24px; }
     }
   </style>
@@ -560,7 +560,7 @@
         </div>
         <div class="metric">
           <div class="metric-label">What changes</div>
-          <div class="metric-value">Authority is no longer assumed</div>
+          <div class="metric-value">Authority must be earned every time</div>
         </div>
       </div>
     </div>
@@ -695,7 +695,7 @@
 
           <div class="why-card">
             <h3 class="why-title">Rules break here</h3>
-            <p class="why-text">Rules don’t fail because they’re wrong. They fail because they don’t see the situation.</p>
+            <p class="why-text">Rules fail in real situations. Context decides.</p>
           </div>
         </div>
       </section>
@@ -743,7 +743,7 @@
         protocol: "Non-action can be reversible when re-entry is defined."
       },
       disable: {
-        request: "Disable a user account after a suspicious activity alert",
+        request: "Disable user account after a suspicious activity alert",
         outcome: "ESCALATE",
         outcomeClass: "escalate",
         outcomeBig: "Escalate",
@@ -782,7 +782,7 @@
         signalText: "Untrusted execution path detected",
         why: "The request involves sensitive account changes triggered through a phishing-like flow or untrusted link.",
         next: "Stop execution. Require direct re-verification through a known entry point or trusted channel.",
-        logic: "The action may be legitimate, but the path that triggered it is not trusted. Execution authority is withheld until identity and intent are re-confirmed outside the suspicious flow. This is where most systems fail - they validate the request, not the path.",
+        logic: "The action may be legitimate, but the path that triggered it is not trusted. Execution authority is withheld until identity and intent are re-confirmed outside the suspicious flow. This is how real attacks bypass systems.",
         status: "Waiting for trusted re-verification",
         decisionClass: "Conditional non-action",
         protocol: "A valid-looking request is not enough when the execution path may be compromised."
@@ -830,6 +830,7 @@
       const box = document.querySelector('.outcome-box');
       box.style.transform = 'scale(0.985)';
       box.style.transition = '0.16s ease';
+
       setTimeout(() => {
         box.style.transform = 'scale(1)';
       }, 160);
@@ -837,9 +838,12 @@
       const status = document.getElementById('statusText');
       const original = s.status;
       status.innerText = 'Decision checked by DECIMAG';
+
       setTimeout(() => {
         status.innerText = original;
       }, 900);
+
+      alert("Execution blocked by DECIMAG");
     }
 
     loadScenario('payment');
