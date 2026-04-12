@@ -12,8 +12,6 @@
       --text: #101828;
       --muted: #667085;
       --line: #e4e7ec;
-      --dark: #0f172a;
-      --dark-2: #182235;
       --shadow: 0 10px 30px rgba(16, 24, 40, 0.08);
 
       --red: #b42318;
@@ -121,7 +119,9 @@
       border: 1px solid rgba(255,255,255,0.18);
     }
 
-    .btn:hover { transform: translateY(-1px); }
+    .btn:hover {
+      transform: translateY(-1px);
+    }
 
     .hero-metrics {
       display: grid;
@@ -828,6 +828,7 @@
     function simulateExecution() {
       const s = scenarios[currentScenarioKey];
       const box = document.querySelector('.outcome-box');
+
       box.style.transform = 'scale(0.985)';
       box.style.transition = '0.16s ease';
 
@@ -843,7 +844,21 @@
         status.innerText = original;
       }, 900);
 
-      alert("Execution blocked by DECIMAG");
+      let message = '';
+
+      if (s.outcome === 'ESCALATE') {
+        message = 'Execution escalated by DECIMAG';
+      } else if (s.outcome === 'DEFER') {
+        message = 'Execution deferred by DECIMAG';
+      } else if (s.outcome === 'REOPENED') {
+        message = 'Case reopened by DECIMAG';
+      } else if (s.outcome === 'ALLOW') {
+        message = 'Execution approved by DECIMAG';
+      } else {
+        message = `Decision returned: ${s.outcome}`;
+      }
+
+      alert(message);
     }
 
     loadScenario('payment');
