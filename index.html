@@ -571,7 +571,7 @@
       <div class="section-head">
         <div>
           <div class="section-kicker">Interactive product preview</div>
-          <h2 class="section-title">Run five decision paths.</h2>
+          <h2 class="section-title">Run six decision paths.</h2>
         </div>
         <p class="section-copy">
           Select a scenario. The authorization result updates like a real decision console, not a static explainer.
@@ -611,6 +611,12 @@
                 <div class="scenario-type">Phishing-triggered action</div>
                 <div class="scenario-title">Approve account update</div>
                 <div class="scenario-meta">Sensitive change initiated through an untrusted link</div>
+              </button>
+
+              <button class="scenario-btn" onclick="loadScenario('export')" id="btn-export">
+                <div class="scenario-type">Low-risk action</div>
+                <div class="scenario-title">Approve invoice export</div>
+                <div class="scenario-meta">Validated request with low operational risk</div>
               </button>
             </div>
           </div>
@@ -786,6 +792,21 @@
         status: "Waiting for trusted re-verification",
         decisionClass: "Conditional non-action",
         protocol: "A valid-looking request is not enough when the execution path may be compromised."
+      },
+      export: {
+        request: "Approve export of validated invoice data to the finance team",
+        outcome: "ALLOW",
+        outcomeClass: "allow",
+        outcomeBig: "Allowed",
+        outcomeSub: "Execution is authorized.",
+        signalClass: "allow",
+        signalText: "Low-risk action validated",
+        why: "The request is validated, reversible, and carries low operational risk.",
+        next: "Proceed with export and log the action.",
+        logic: "The required context is present. The action is low-risk, reversible, and justified. Execution authority is granted.",
+        status: "Approved for execution",
+        decisionClass: "Authorization granted",
+        protocol: "When the conditions are met, DECIMAG allows the action to proceed."
       }
     };
 
